@@ -1,0 +1,54 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model User {
+    id        Int       @id @default(autoincrement())
+    email     String    @unique
+    companies Company[]
+}
+
+model Company {
+    id      Int    @id @default(autoincrement())
+    ownerId Int
+    name    String @unique
+    owner   User   @relation(fields: [ownerId], references: [id])
+    cards   Card[]
+}
+
+model Card {
+    id         Int      @id @default(autoincrement())
+    companyId  Int
+    cardNumber String   @unique
+    expiryDate DateTime
+
+    spendLimit Decimal @default(0.00)
+
+    company      Company       @relation(fields: [companyId], references: [id])
+    transactions Transaction[]
+    Invoice      Invoice[]
+}
+
+model Transaction {
+    id              Int      @id @default(autoincrement())
+    cardId          Int
+    transactionDate DateTime @default(now())
+    amount          Decimal
+    currency        String   @default("SEK")
+
+    card Card @relation(fields: [cardId], references: [id])
+}
+
+model Invoice {
+    id        Int      @id @default(autoincrement())
+    cardId    Int
+    dueDate   DateTime
+    amountDue Decimal
+
+    card Card @relation(fields: [cardId], references: [id])
+}
