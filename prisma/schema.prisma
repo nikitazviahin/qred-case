@@ -25,13 +25,14 @@ model Card {
     id         Int      @id @default(autoincrement())
     companyId  Int
     cardNumber String   @unique
+    currency   String   @default("SEK")
     expiryDate DateTime
 
     spendLimit Decimal @default(0.00)
 
     company      Company       @relation(fields: [companyId], references: [id])
     transactions Transaction[]
-    Invoice      Invoice[]
+    invoices     Invoice[]
 }
 
 model Transaction {
@@ -49,6 +50,7 @@ model Invoice {
     cardId    Int
     dueDate   DateTime
     amountDue Decimal
+    currency  String   @default("SEK")
 
     card Card @relation(fields: [cardId], references: [id])
 }
