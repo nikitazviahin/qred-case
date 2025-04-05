@@ -1,1 +1,1 @@
-# qred_case
+# qred-case
