@@ -1,11 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
+import { PaginatedTransactionResponseDTO } from './dtos/paginated-transaction-response.dto';
 
 @Injectable()
 export class TransactionService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getTransactionsByCardId(cardId: number, page = 1, limit = 10) {
+  async getTransactionsByCardId(
+    cardId: number,
+    page = 1,
+    limit = 10,
+  ): Promise<PaginatedTransactionResponseDTO> {
     const skip = (page - 1) * limit;
 
     try {
@@ -19,7 +24,10 @@ export class TransactionService {
       const total = await this.prisma.transaction.count({ where: { cardId } });
 
       return {
-        data: transactions,
+        data: transactions.map((t) => ({
+          ...t,
+          amount: t.amount.toNumber(),
+        })),
         total,
         page,
         limit,

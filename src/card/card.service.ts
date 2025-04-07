@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { startOfMonth, endOfMonth } from 'date-fns';
 import { PrismaService } from 'prisma/prisma.service';
+import { CardResponseDTO } from './dtos/card-response.dto';
 
 @Injectable()
 export class CardService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getCardsByCompanyId(companyId: number) {
+  async getCardsByCompanyId(
+    companyId: number,
+  ): Promise<CardResponseDTO[] | undefined> {
     const now = new Date();
     const monthStart = startOfMonth(now);
     const monthEnd = endOfMonth(now);
@@ -42,8 +45,11 @@ export class CardService {
           cardNumber: card.cardNumber,
           currency: card.currency,
           expiryDate: card.expiryDate,
-          spendLimit: card.spendLimit,
-          invoices: card.invoices,
+          spendLimit: card.spendLimit.toNumber(),
+          invoices: card.invoices.map((i) => ({
+            ...i,
+            amountDue: i.amountDue.toNumber(),
+          })),
           monthlySpend,
         };
       });
