@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { startOfMonth, endOfMonth } from 'date-fns';
 import { PrismaService } from 'prisma/prisma.service';
 
 @Injectable()
@@ -29,34 +28,6 @@ export class TransactionService {
     } catch (error) {
       console.error(`Failed to fetch transactions for card ${cardId}`, error);
       throw error;
-    }
-  }
-
-  async getMonthlySpentByCard(cardId: number) {
-    try {
-      const now = new Date();
-      const monthStart = startOfMonth(now);
-      const monthEnd = endOfMonth(now);
-
-      const result = await this.prisma.transaction.aggregate({
-        _sum: {
-          amount: true,
-        },
-        where: {
-          cardId: cardId,
-          transactionDate: {
-            gte: monthStart,
-            lte: monthEnd,
-          },
-        },
-      });
-
-      return result._sum.amount ?? 0;
-    } catch (error) {
-      console.error(
-        `Error calculating monthly spend for card ${cardId}:`,
-        error,
-      );
     }
   }
 }
